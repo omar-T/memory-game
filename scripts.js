@@ -1,6 +1,19 @@
+// GAME SETTINGS LOGIC
 const difficultyLevels = document.querySelectorAll(".difficulty-level");
 const startButton = document.getElementById("start-game");
 let selectedDifficulty = "";
+
+// GAME LOGIC
+let gameStarted = false;
+let hasFlippedCard = false;
+let lockBoard = false;
+let firstCard, secondCard;
+const timerDisplay = document.getElementById("timer"); // Replace 'timer' with your HTML element ID
+const scoreDisplay = document.getElementById("score"); // Replace 'score' with your HTML element ID
+
+// SCORE SYSTEM
+let startTime;
+let timerInterval;
 
 // Event listeners for difficulty selection
 difficultyLevels.forEach((level) => {
@@ -14,6 +27,7 @@ difficultyLevels.forEach((level) => {
   });
 });
 
+// GAME CREATION LOGIC
 // Event listener for start button
 startButton.addEventListener("click", () => {
   if (selectedDifficulty) {
@@ -23,10 +37,23 @@ startButton.addEventListener("click", () => {
   }
 });
 
+function resetGame() {
+  gameStarted = false;
+  timerDisplay.textContent = `Time: 0s`;
+  scoreDisplay.textContent = `Score: 0`;
+  startTime = undefined;
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = undefined;
+  }
+}
+
 function createGameBoard(difficulty) {
   let totalCards = 0;
   let columns = 0;
   let rows = 0;
+
+  resetGame();
 
   // Determine number of cards, columns, and rows based on difficulty
   switch (difficulty) {
@@ -49,8 +76,10 @@ function createGameBoard(difficulty) {
       break;
   }
 
-  const memoryGameSection = document.querySelector(".memory-game");
-  memoryGameSection.innerHTML = ""; // Clear previous cards if any
+  const memoryGameSectionContent = document.querySelector(
+    ".memory-game .game-content"
+  );
+  memoryGameSectionContent.innerHTML = ""; // Clear previous cards if any
 
   // Logic to create memory game board with cards
   // Use totalCards, columns, and rows to generate the game board dynamically
@@ -97,7 +126,7 @@ function createGameBoard(difficulty) {
     card.appendChild(frontFace);
     card.appendChild(backFace);
 
-    memoryGameSection.appendChild(card);
+    memoryGameSectionContent.appendChild(card);
   }
 
   // Update styles for memory-card
@@ -116,12 +145,15 @@ function createGameBoard(difficulty) {
   });
 }
 
-let hasFlippedCard = false;
-let lockBoard = false;
-let firstCard, secondCard;
-
+// GAME LOGIC
 function flipCard() {
+  if (!gameStarted) {
+    startTimer(); // Start the timer on the first move
+    gameStarted = true;
+  }
+
   if (lockBoard) return;
+
   if (this === firstCard) return;
 
   this.classList.add("flip");
@@ -139,6 +171,11 @@ function flipCard() {
 
   // check if cards match
   checkForMatch();
+
+  // Check if all cards are matched, then end the game
+  if (allCardsMatched()) {
+    endGame();
+  }
 }
 
 function checkForMatch() {
@@ -152,9 +189,17 @@ function checkForMatch() {
   }
 }
 
+function allCardsMatched() {
+  const memoryCards = document.querySelectorAll(".memory-card");
+  return [...memoryCards].every((card) => card.classList.contains("matched"));
+}
+
 function disableCards() {
   firstCard.removeEventListener("click", flipCard);
   secondCard.removeEventListener("click", flipCard);
+
+  firstCard.classList.add("matched");
+  secondCard.classList.add("matched");
 
   resetBoard();
 }
@@ -173,4 +218,37 @@ function unflipCards() {
 function resetBoard() {
   [hasFlippedCard, lockBoard] = [false, false];
   [firstCard, secondCard] = [null, null];
+}
+
+// SCORE SYSTEM
+function startTimer() {
+  startTime = new Date().getTime();
+  timerInterval = setInterval(updateTimer, 1000); // Update timer every second
+}
+
+function updateTimer() {
+  const currentTime = new Date().getTime();
+  const elapsedTime = Math.floor((currentTime - startTime) / 1000); // Time in seconds, rounded down
+
+  // Display elapsed time wherever you want in your UI
+  timerDisplay.textContent = `Time: ${elapsedTime}s`;
+}
+
+function endGame() {
+  clearInterval(timerInterval); // Stop the timer
+  const currentTime = new Date().getTime();
+  const elapsedTime = Math.floor((currentTime - startTime) / 1000); // Time in seconds
+
+  const finalScore = calculateScore(elapsedTime);
+
+  // Display elapsed time wherever you want in your UI
+  scoreDisplay.textContent = `Score: ${finalScore}`;
+}
+
+function calculateScore(elapsedTime) {
+  const baseScore = 1000; // Define a base score
+  const timePenalty = 10; // Deduct 10 points for every second
+  const finalScore = Math.max(0, baseScore - elapsedTime * timePenalty); // Calculate score
+
+  return finalScore;
 }

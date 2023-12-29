@@ -1,7 +1,12 @@
 :root {
   --bg-primary: rgb(248, 235, 219);
   --bg-secondary: rgb(244, 249, 255);
+  --bg-red: rgb(179, 65, 65);
+  --bg-gold: rgb(114, 81, 32);
   --text-light: rgb(244, 249, 255);
+  --text-red: rgb(179, 65, 65);
+  --text-gold: rgb(114, 81, 32);
+  --border-red: rgb(179, 65, 65);
 }
 
 * {
@@ -34,8 +39,8 @@ body {
 
 .difficulty-level {
   width: 200px;
-  border: 2px solid rgb(179, 65, 65);
-  color: rgb(179, 65, 65);
+  border: 2px solid var(--border-red);
+  color: var(--text-red);
   padding: 10px 20px;
   border-radius: 30px;
   text-align: center;
@@ -43,7 +48,7 @@ body {
 }
 
 .difficulty-level.selected {
-  background-color: rgb(179, 65, 65);
+  background-color: var(--bg-red);
   color: var(--text-light);
 }
 
@@ -53,7 +58,7 @@ body {
   background-color: transparent;
   padding: 10px 20px;
   font-weight: bold;
-  background-color: rgb(114, 81, 32);
+  background-color: var(--bg-gold);
   color: var(--text-light);
   border-radius: 30px;
   font-size: 18px;
@@ -65,9 +70,14 @@ body {
   width: 100%;
   height: 100%;
   padding: 100px 300px;
+  perspective: 1000px;
+}
+
+.memory-game .game-content {
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-wrap: wrap;
-  perspective: 1000px;
 }
 
 .memory-card {
@@ -110,8 +120,10 @@ body {
   transform: rotateY(180deg);
 }
 
-#timer {
+.game-info {
   position: absolute;
-  right: 0;
-  top: 0;
+  right: 50px;
+  top: 50px;
+  font-size: 30px;
+  color: var(--text-gold);
 }
