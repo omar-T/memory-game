@@ -14,6 +14,7 @@ const scoreDisplay = document.getElementById("score"); // Replace 'score' with y
 // SCORE SYSTEM
 let startTime;
 let timerInterval;
+let finalScore;
 
 // Event listeners for difficulty selection
 difficultyLevels.forEach((level) => {
@@ -42,6 +43,7 @@ function resetGame() {
   timerDisplay.textContent = `Time: 0s`;
   scoreDisplay.textContent = `Score: 0`;
   startTime = undefined;
+  finalScore = undefined;
   if (timerInterval) {
     clearInterval(timerInterval);
     timerInterval = undefined;
@@ -239,14 +241,31 @@ function endGame() {
   const currentTime = new Date().getTime();
   const elapsedTime = Math.floor((currentTime - startTime) / 1000); // Time in seconds
 
-  const finalScore = calculateScore(elapsedTime);
+  finalScore = calculateScore(elapsedTime, selectedDifficulty);
 
   // Display elapsed time wherever you want in your UI
   scoreDisplay.textContent = `Score: ${finalScore}`;
 }
 
-function calculateScore(elapsedTime) {
-  const baseScore = 1000; // Define a base score
+function calculateScore(elapsedTime, difficulty) {
+  let baseScore;
+
+  // Assign base scores based on difficulty
+  switch (difficulty) {
+    case "beginner":
+      baseScore = 1000;
+      break;
+    case "intermediate":
+      baseScore = 1500;
+      break;
+    case "expert":
+      baseScore = 2000;
+      break;
+    default:
+      baseScore = 1000; // Default base score
+      break;
+  }
+
   const timePenalty = 10; // Deduct 10 points for every second
   const finalScore = Math.max(0, baseScore - elapsedTime * timePenalty); // Calculate score
 
