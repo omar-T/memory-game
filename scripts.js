@@ -1,7 +1,43 @@
+document.addEventListener("DOMContentLoaded", () => {
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyA0Cma6g6PH3eIY4jOyUTQ36T2ndmwfS6s",
+    authDomain: "memory-game-19956.firebaseapp.com",
+    projectId: "memory-game-19956",
+    storageBucket: "memory-game-19956.appspot.com",
+    messagingSenderId: "473042407504",
+    appId: "1:473042407504:web:fe92915a923448b7720155",
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+});
+
+// Function to save player's data to Firebase
+function savePlayerData(name, difficulty, finalScore) {
+  firebase
+    .firestore()
+    .collection("scores")
+    .add({
+      name,
+      difficulty,
+      score: finalScore,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+    })
+    .then((docRef) => {
+      console.log("Data: ", docRef);
+    })
+    .catch((error) => {
+      console.error("Error adding data: ", error);
+    });
+}
+
 // GAME SETTINGS LOGIC
 const difficultyLevels = document.querySelectorAll(".difficulty-level");
 const startButton = document.getElementById("start-game");
 let selectedDifficulty = "";
+// Player's name input
+const playerNameInput = document.getElementById("player-name");
 
 // GAME LOGIC
 let gameStarted = false;
@@ -245,6 +281,14 @@ function endGame() {
 
   // Display elapsed time wherever you want in your UI
   scoreDisplay.textContent = `Score: ${finalScore}`;
+
+  const playerName = playerNameInput.value.trim();
+
+  if (playerName) {
+    savePlayerData(playerName, selectedDifficulty, finalScore);
+  } else {
+    console.log("Player canceled or did not enter a name.");
+  }
 }
 
 function calculateScore(elapsedTime, difficulty) {
