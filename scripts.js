@@ -67,11 +67,9 @@ difficultyLevels.forEach((level) => {
 // GAME CREATION LOGIC
 // Event listener for start button
 startButton.addEventListener("click", () => {
-  if (selectedDifficulty) {
-    createGameBoard(selectedDifficulty);
-  } else {
-    alert("Please select a difficulty!");
-  }
+  if (!selectedDifficulty) return alert("Please select a difficulty!");
+
+  createGameBoard(selectedDifficulty);
 });
 
 function resetGame() {
@@ -168,18 +166,14 @@ function createGameBoard(difficulty) {
   }
 
   // Update styles for memory-card
-  // const memoryCards = document.querySelectorAll(".memory-card");
   const memoryCards = document.querySelectorAll(".memory-card");
-  memoryCards.forEach((card) => {
-    card.style.setProperty("--columns", columns);
-    card.style.setProperty("--rows", rows);
-  });
-
-  memoryCards.forEach((card) => card.addEventListener("click", flipCard));
-
   memoryCards.forEach((card) => {
     let randomPos = Math.floor(Math.random() * totalCards);
     card.style.order = randomPos;
+    card.style.setProperty("--columns", columns);
+    card.style.setProperty("--rows", rows);
+
+    card.addEventListener("click", flipCard);
   });
 }
 
@@ -222,9 +216,10 @@ function checkForMatch() {
 
   if (firstDataSet === secondDataSet) {
     disableCards();
-  } else {
-    unflipCards();
+    return;
   }
+
+  unflipCards();
 }
 
 function allCardsMatched() {
@@ -284,11 +279,12 @@ function endGame() {
 
   const playerName = playerNameInput.value.trim();
 
-  if (playerName) {
-    savePlayerData(playerName, selectedDifficulty, finalScore);
-  } else {
+  if (!playerName) {
     console.log("Player canceled or did not enter a name.");
+    return;
   }
+
+  savePlayerData(playerName, selectedDifficulty, finalScore);
 }
 
 function calculateScore(elapsedTime, difficulty) {
